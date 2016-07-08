@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 
 verbose = False
 automate = False
+noconfirm = False
 
 def vprint(arg):
     global verbose
@@ -43,7 +44,7 @@ def parse_url(url):
     fetch_download_url(s, url, t, dpath)    
 
 def fetch_download_url(s, url, urltype, dpath):
-    global automate
+    global automate, noconfirm
 
     vprint(["Parsing songs list..."])
 
@@ -73,6 +74,12 @@ def fetch_download_url(s, url, urltype, dpath):
     vprint(["Songs dictionary created", "Get the list of songs to download from user..."])
 
     if automate:
+        dl_list = [s for s in songs_dict]
+        print "List of songs to be downloaded:"
+        for i in dl_list:
+            if i in songs_dict:
+                print str(i) + ': ' + str(songs_dict[i][0])
+    elif noconfirm:
         dl_list = display_songs(songs_dict)
     else:
         dl_list = select_songs(songs_dict)
@@ -101,7 +108,7 @@ def fetch_download_url(s, url, urltype, dpath):
 
         for i in dl_list:
             print "Downloading " + str(i) + ': ' + str(dl_dict[i][0]) + "... "
-            download_song(dirpath, dl_dict[i][0], dl_dict[i][1])
+            download_song(str(dirpath) + '/' + str(dl_dict[i][0]) + '.mp3', dl_dict[i][1])
             print "Downloading Complete"
 
 def select_songs(songs_dict):
@@ -150,8 +157,7 @@ def display_songs(songs_dict):
     return dl_list
 
 
-def download_song(path, name, url):
-    song_file = str(path) + '/' + str(name) + ".mp3"
+def download_song(song_file, url):
     with open(song_file, 'wb')  as f:
         data = requests.get(url, stream = True)
         for chunk in data.iter_content(chunk_size=1024*1024):
@@ -173,8 +179,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", help = "increase output verbosity", action = "store_true")
     parser.add_argument("-n", "--noconfirm", help = "do not ask for confirmation", action = "store_true")
+    parser.add_argument("-a", "--all", help = "download everything", action = "store_true")
     parser.add_argument("music_url", help = "Bandcamp Song URL")
     args = parser.parse_args()
     verbose = bool(args.verbose)
-    automate = bool(args.noconfirm)
+    noconfirm = bool(args.noconfirm)
+    automate = bool(args.all)
     parse_url(args.music_url)
