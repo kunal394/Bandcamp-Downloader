@@ -8,12 +8,44 @@
     https://popplers5.bandcamp.com/download/track?enc=mp3-128&fsig=66bf9341f2d63db3a4e203935b5a025c&id=2174833463&stream=1&ts=1465344506.0
      """
 
-import os, sys, requests, re, json, argparse, codecs
+import os, sys, requests, re, argparse
 from bs4 import BeautifulSoup
 
-def fetch_download_url(url):
+verbose = False
+automate = False
+
+def vprint(arg):
+    global verbose
+    if verbose:
+        for i in arg:
+            print i
+
+def parse_url(url):
+
+    vprint(["Fetching data from the url provided..."])
+
     r = requests.get(url)
+
+    vprint(["Data fetching complete", "Parsing data..."])
+
     s = BeautifulSoup(r.text, 'html.parser')
+
+    vprint(["Parsing directory paths..."])
+
+    dpath = []
+    t = url.split('/')[3]
+    if t == 'track':
+        dpath.append(str(s.find("div", {"id" : "name-section"}).span.a.string.srtip()))
+    elif t == 'album':
+        dpath.append(str(s.find("div", {"id" : "name-section"}).span.a.string.strip()))
+        dpath.append(str(s.find("div", {"id" : "name-section"}).h2.string.strip()))
+    vprint(["Parsing Complete"])
+    fetch_download_url(s, url, t, dpath)    
+
+def fetch_download_url(s, url, urltype, dpath):
+    global automate
+
+    vprint(["Parsing songs list..."])
 
     #fetch all script tags inside body
     js = s.body.find_all("script")
@@ -29,18 +61,54 @@ def fetch_download_url(url):
         if len(temp) is not 0:
             fetch_list.extend(temp)
 
-    songs_dict = {}
+    vprint(["Songs list created", "Creating songs dictionary..."])
 
-    #dictionary of songs with the download links
+    songs_dict = {}
+    #dictionary of songs with the api links
     for i, j in zip(range(1, len(fetch_list) + 1), fetch_list):
         title = str(j.split(':')[1].split(',')[0].split('"')[1])
         furl = "https:" + str(j.split(':')[3].split('}')[0].split('"')[1])
+        songs_dict.update({i : [title, furl]})
+
+    vprint(["Songs dictionary created", "Get the list of songs to download from user..."])
+
+    if automate:
+        dl_list = display_songs(songs_dict)
+    else:
+        dl_list = select_songs(songs_dict)
+
+    vprint(["Download list received from user", "Creating dictionary of songs to download..."])
+
+    dl_dict = {}
+    #dictionary of songs with the download links
+    for i in dl_list:
+        title = songs_dict[i][0]
+        furl = songs_dict[i][1]
+        vprint(["Fetching download url for the song: " + str(title)])
         dlurl = requests.get(furl, allow_redirects = False).headers['Location']
-        songs_dict.update({i : [title, dlurl]})
+        dl_dict.update({i : [title, dlurl]})
+
+    if len(dl_list) == 0:
+        print "No songs selected"
+    else:
+        print "Creating the directory... "
+        dirpath = "./"
+        for i in dpath:
+            dirpath = dirpath + '/' + str(i)
+
+        if not os.path.exists(dirpath):
+            os.makedirs(dirpath)
+
+        for i in dl_list:
+            print "Downloading " + str(i) + ': ' + str(dl_dict[i][0]) + "... "
+            download_song(dirpath, dl_dict[i][0], dl_dict[i][1])
+            print "Downloading Complete"
+
+def select_songs(songs_dict):
 
     user_response = 'n'
     while user_response.strip() is not 'y':
-        dl_list = select_songs(songs_dict)    
+        dl_list = display_songs(songs_dict)    
         print "Are you sure you are done with your songs' choice and you want to go ahead and download them?"
         user_response = raw_input("y/n/c(to cancel): ")
         if user_response.strip() == 'c':
@@ -52,23 +120,9 @@ def fetch_download_url(url):
             if user_response.strip() == 'c':
                 print "Downloading canceled"
                 sys.exit()
+    return dl_list            
 
-    if len(dl_list) == 0:
-        print "No songs selected"
-    else:
-        print "Creating the album's directory... "
-        dname = url.split('/')[-1]
-        dpath = "./" + dname
-        if not os.path.exists(dpath):
-            os.makedirs(dpath)
-
-        for i in dl_list:
-            print "Downloading " + str(i) + ': ' + str(songs_dict[i][0]) + "... "
-            download_song(dpath, songs_dict[i][0], songs_dict[i][1])
-            print "Downloading Complete"
-
-def select_songs(songs_dict):
-
+def display_songs(songs_dict):
     #print songs_dict
     for key in songs_dict:
         print str(key) + ": " + str(songs_dict[key][0])
@@ -118,7 +172,9 @@ if __name__ == "__main__":
     #argument parsing
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", help = "increase output verbosity", action = "store_true")
+    parser.add_argument("-n", "--noconfirm", help = "do not ask for confirmation", action = "store_true")
     parser.add_argument("music_url", help = "Bandcamp Song URL")
     args = parser.parse_args()
     verbose = bool(args.verbose)
-    fetch_download_url(args.music_url)
+    automate = bool(args.noconfirm)
+    parse_url(args.music_url)
