@@ -27,6 +27,7 @@ optional arguments:
 ## Features
 
 > Download a complete album given the url
+
 > Download a single track given the url
 
 ## Features to be implemented
