@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 """download url for any track will be of the form:
-    https://p4.bcbits.com/download/track/f292a04c35c0d77096070e1a21ba2bd8/mp3-128/2174833463?fsig=c2438177b7ea6a2c2bbdc4a338c6f891
-    &id=2174833463&stream=1&ts=1467921600.0&token=1467921660_41b8c540f50cd2cc51f629d1ae70bd94301999e3
+    https://p4.bcbits.com/download/track/f292a04c35c0d77096070e1a21ba2bd8/mp3-128/2174833463?fsig=c2438177b7ea6a2c2bbdc4a338c6f891&id=2174833463&stream=1&ts=1467921600.0&token=1467921660_41b8c540f50cd2cc51f629d1ae70bd94301999e3
 
     which is obtained from a url of type:
     https://popplers5.bandcamp.com/download/track?enc=mp3-128&fsig=66bf9341f2d63db3a4e203935b5a025c&id=2174833463&stream=1&ts=1465344506.0
@@ -36,10 +35,13 @@ def parse_url(url):
     dpath = []
     t = url.split('/')[3]
     if t == 'track':
-        dpath.append(str(s.find("div", {"id" : "name-section"}).span.a.string.srtip()))
-    elif t == 'album':
-        dpath.append(str(s.find("div", {"id" : "name-section"}).span.a.string.strip()))
-        dpath.append(str(s.find("div", {"id" : "name-section"}).h2.string.strip()))
+        albumname = str(s.find("div", {"id" : "name-section"}).span.a.string.srtip())
+        dpath.append(albumname.title())
+    elif t == 'album' or t == '':
+        bandname=str(s.find("div", {"id" : "name-section"}).span.a.string.strip())
+        dpath.append(bandname.title())
+        albumname=str(s.find("div", {"id" : "name-section"}).h2.string.strip())
+        dpath.append(albumname.title())
     vprint(["Parsing Complete"])
     fetch_download_url(s, url, t, dpath)    
 
