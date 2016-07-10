@@ -2,7 +2,7 @@
 [![Open Source Love](https://badges.frapsoft.com/os/v2/open-source-175x29.png?v=103)](https://github.com/ellerbrock/open-source-badge/)
 
 # Bandcamp-Downloader
-Bandcamp Downloader in python
+Bandcamp Music Downloader in python
 
 ## Instructions
 
@@ -27,7 +27,7 @@ optional arguments:
 ### Example
 `./bdcamp.py https://randartist.bandcamp.com/album/first-album` will create a folder named `First Album` and download all the
 songs of that album, present on the bandcamp url provided, in that folder and this folder will be inside a folder named
-`Rand Artist` (if that is the artist name provide on the artist page). The artist's folder will be present inside the current folder.
+`Rand Artist` (if that is the artist name provide on the artist's page). The artist's folder will be present inside the current folder.
 
 ## Features
 
