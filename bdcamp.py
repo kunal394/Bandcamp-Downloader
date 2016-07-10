@@ -68,7 +68,7 @@ def parse_url(url):
         vprint(['in album'])
         bandname = str(s.find("div", {"id" : "name-section"}).span.a.string.strip().title())
         dpath.append(bandname)
-        albumname = str(s.find("div", {"id" : "name-section"}).h2.string.strip())
+        albumname = str(s.find("div", {"id" : "name-section"}).h2.string.strip().title())
         dpath.append(albumname)
         handle_track_album(s, dpath, {})
     elif t == 'music':
