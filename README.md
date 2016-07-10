@@ -25,7 +25,9 @@ optional arguments:
 ```
 
 ### Example
-`./bdcamp.py https://lostinmadrid.bandcamp.com/album/1st-e-p` will create a folder named 1st-ep and download all the songs of that album, present on the bandcamp url provided, in that folder. This folder will be created in the same folder from where the script is being executed.
+`./bdcamp.py https://randartist.bandcamp.com/album/first-album` will create a folder named `First Album` and download all the
+songs of that album, present on the bandcamp url provided, in that folder and this folder will be inside a folder named
+`Rand Artist` (if that is the artist name provide on the artist page). The artist's folder will be present inside the current folder.
 
 ## Features
 
