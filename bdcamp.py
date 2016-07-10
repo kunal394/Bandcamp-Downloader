@@ -207,6 +207,7 @@ def display_songs(songs_dict):
     #print songs_dict
     for key in songs_dict:
         print str(key) + ": " + str(songs_dict[key][0])
+    print ""    
     
     user_input = raw_input()
     if user_input.strip() == 'all':
@@ -216,7 +217,7 @@ def display_songs(songs_dict):
     
     dl_list = list(set(dl_list))
 
-    print "You have selected following songs:"
+    print "\nYou have selected following songs:"
     for i in dl_list:
         if i in songs_dict:
             print str(i) + ': ' + str(songs_dict[i][0])
