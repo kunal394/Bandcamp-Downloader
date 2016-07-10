@@ -26,10 +26,12 @@ optional arguments:
 
 ## Features
 
-> Download a complete album given the url
+> Download all songs of an artist given the url (`artist.bandcamp.com/music`)
 
-> Download a single track given the url
+> Download a complete album given the url (`artist.bandcamp.com/album/album-name`)
 
-## Features to be implemented
+> Download a single track given the url (`artist.bandcamp.com/track/track-name`)
 
-> Download all the songs of an artist given the bandcamp url of that artist
+## TODO
+
+> Implement regex input or a better way to help user select songs from the list instead of providing comma separated list.
