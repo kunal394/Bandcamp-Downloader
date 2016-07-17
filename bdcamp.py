@@ -64,7 +64,7 @@ def parse_url(url):
         albumname = str(s.find("div", {"id" : "name-section"}).span.a.string.srtip().title())
         dpath.append(albumname)
         handle_track_album(s, dpath, {})
-    elif t == 'album' or t == '':
+    elif t == 'album' or t == '' or t == "releases":
         vprint(['in album'])
         bandname = str(s.find("div", {"id" : "name-section"}).span.a.string.strip().title())
         dpath.append(bandname)
@@ -83,6 +83,7 @@ def handle_artist(albumlist, url, dpath):
     for i in albumlist:
         album_url = url[::-1].partition('/')[2][::-1] + "/album/" + i.lower().replace(' ', '-')
         album_url = album_url.replace(',', '')
+        album_url = album_url.replace('.', '')
 
         vprint(["\nFetching data from the album url provided..."])
         r = requests.get(album_url)
