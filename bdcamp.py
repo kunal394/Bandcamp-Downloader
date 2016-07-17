@@ -75,17 +75,15 @@ def parse_url(url):
         vprint(['in music'])
         bandname = s.find("span", {"class" : "title"}).string.title()
         dpath.append(bandname)
-        albumlist = [ i.string.strip().title() for i in s.find_all("p", {"class" : "title"}) if i.string is not None ] 
+        albumlist = { i.string.strip() : i.parent.attrs['href'] for i in s.find_all("p", {"class" : "title"}) if i.string is not None }
         handle_artist(albumlist, url, dpath)
 
 def handle_artist(albumlist, url, dpath):
     album_dict = {}
     for i in albumlist:
-        au = i.lower().replace(' ', '-')
-        au = re.sub(ur"[,\.]", "", au)
-        album_url = url[::-1].partition('/')[2][::-1] + "/album/" + au
+        album_url = url[::-1].partition('/')[2][::-1] + albumlist[i]
 
-        vprint(["\nFetching data from the album url: " + album_url + "... "])
+        vprint(["\nAlbum Name: " + i, "Fetching data from the album url: " + album_url + "... "])
         r = requests.get(album_url)
         vprint(["Data fetching complete", "Parsing data..."])
         s = BeautifulSoup(r.text, 'html.parser')
