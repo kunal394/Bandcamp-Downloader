@@ -82,6 +82,7 @@ def handle_artist(albumlist, url, dpath):
     album_dict = {}
     for i in albumlist:
         album_url = url[::-1].partition('/')[2][::-1] + "/album/" + i.lower().replace(' ', '-')
+        album_url = album_url.replace(',', '')
 
         vprint(["\nFetching data from the album url provided..."])
         r = requests.get(album_url)
