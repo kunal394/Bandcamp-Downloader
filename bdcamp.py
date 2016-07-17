@@ -61,31 +61,31 @@ def parse_url(url):
 
     if t == 'track':
         vprint(['in track'])
-        albumname = str(s.find("div", {"id" : "name-section"}).span.a.string.srtip().title())
+        albumname = s.find("div", {"id" : "name-section"}).span.a.string.srtip().title()
         dpath.append(albumname)
         handle_track_album(s, dpath, {})
     elif t == 'album' or t == '' or t == "releases":
         vprint(['in album'])
-        bandname = str(s.find("div", {"id" : "name-section"}).span.a.string.strip().title())
+        bandname = s.find("div", {"id" : "name-section"}).span.a.string.strip().title()
         dpath.append(bandname)
-        albumname = str(s.find("div", {"id" : "name-section"}).h2.string.strip().title())
+        albumname = s.find("div", {"id" : "name-section"}).h2.string.strip().title()
         dpath.append(albumname)
         handle_track_album(s, dpath, {})
     elif t == 'music':
         vprint(['in music'])
-        bandname = str(s.find("span", {"class" : "title"}).string.title())
+        bandname = s.find("span", {"class" : "title"}).string.title()
         dpath.append(bandname)
-        albumlist = [ str(i.string.strip().title()) for i in s.find_all("p", {"class" : "title"}) if i.string is not None ] 
+        albumlist = [ i.string.strip().title() for i in s.find_all("p", {"class" : "title"}) if i.string is not None ] 
         handle_artist(albumlist, url, dpath)
 
 def handle_artist(albumlist, url, dpath):
     album_dict = {}
     for i in albumlist:
-        album_url = url[::-1].partition('/')[2][::-1] + "/album/" + i.lower().replace(' ', '-')
-        album_url = album_url.replace(',', '')
-        album_url = album_url.replace('.', '')
+        au = i.lower().replace(' ', '-')
+        au = re.sub(ur"[,\.]", "", au)
+        album_url = url[::-1].partition('/')[2][::-1] + "/album/" + au
 
-        vprint(["\nFetching data from the album url provided..."])
+        vprint(["\nFetching data from the album url: " + album_url + "... "])
         r = requests.get(album_url)
         vprint(["Data fetching complete", "Parsing data..."])
         s = BeautifulSoup(r.text, 'html.parser')
@@ -129,8 +129,8 @@ def handle_track_album(s, dpath, dl_dict):
             os.makedirs(dirpath)
 
         for i in dl_dict:
-            print "Downloading " + str(i) + ': ' + str(dl_dict[i][0]) + "... "
-            download_song(str(dirpath) + '/' + str(dl_dict[i][0]) + '.mp3', dl_dict[i][1])
+            print "Downloading " + str(i) + ': ' + dl_dict[i][0] + "... "
+            download_song(dirpath + '/' + dl_dict[i][0] + '.mp3', dl_dict[i][1])
             print "Downloading Complete"
 
 def fetch_download_url(s, dpath):
@@ -157,8 +157,8 @@ def fetch_download_url(s, dpath):
     songs_dict = {}
     #dictionary of songs with the api links
     for i, j in zip(range(1, len(fetch_list) + 1), fetch_list):
-        title = str(j.split(':')[1].split(',')[0].split('"')[1])
-        furl = "https:" + str(j.split(':')[3].split('}')[0].split('"')[1])
+        title = j.split(':')[1].split(',')[0].split('"')[1]
+        furl = "https:" + j.split(':')[3].split('}')[0].split('"')[1]
         songs_dict.update({i : [title, furl]})
 
     vprint(["Songs dictionary created", "Get the list of songs to download from user..."])
@@ -168,7 +168,7 @@ def fetch_download_url(s, dpath):
         print "List of songs to be downloaded:"
         for i in dl_list:
             if i in songs_dict:
-                print str(i) + ': ' + str(songs_dict[i][0])
+                print str(i) + ': ' + songs_dict[i][0]
     elif noconfirm:
         dl_list = display_songs(songs_dict)
     else:
@@ -181,7 +181,7 @@ def fetch_download_url(s, dpath):
     for i in dl_list:
         title = songs_dict[i][0]
         furl = songs_dict[i][1]
-        vprint(["Fetching download url for the song: " + str(title)])
+        vprint(["Fetching download url for the song: " + title])
         dlurl = requests.get(furl, allow_redirects = False).headers['Location']
         dl_dict.update({i : [title, dlurl]})
     
@@ -208,7 +208,7 @@ def select_songs(songs_dict):
 def display_songs(songs_dict):
     #print songs_dict
     for key in songs_dict:
-        print str(key) + ": " + str(songs_dict[key][0])
+        print str(key) + ": " + songs_dict[key][0]
     print ""    
     
     user_input = raw_input()
@@ -222,7 +222,7 @@ def display_songs(songs_dict):
     print "\nYou have selected following songs:"
     for i in dl_list:
         if i in songs_dict:
-            print str(i) + ': ' + str(songs_dict[i][0])
+            print str(i) + ': ' + songs_dict[i][0]
         else:
             dl_list.remove(i)
     if len(dl_list) == 0:
