@@ -90,7 +90,7 @@ def handle_artist(albumlist, url, dpath):
 
         vprint(["Fetching songs list for album: " + i + " from url: " + album_url])
         print "\nSelect songs for the album: " + i
-        dl_dict = fetch_download_url(s, dpath)
+        dl_dict = fetch_download_url(s)
 
         if len(dl_dict) is not 0:
             album_dict.update({i : dl_dict})
@@ -113,7 +113,7 @@ def handle_artist(albumlist, url, dpath):
 
 def handle_track_album(s, dpath, dl_dict):
     if len(dl_dict) == 0:
-        dl_dict = fetch_download_url(s, dpath)    
+        dl_dict = fetch_download_url(s)    
 
     if len(dl_dict) == 0:
         print "No songs selected"
@@ -131,7 +131,7 @@ def handle_track_album(s, dpath, dl_dict):
             download_song(dirpath + '/' + dl_dict[i][0] + '.mp3', dl_dict[i][1])
             print "Downloading Complete"
 
-def fetch_download_url(s, dpath):
+def fetch_download_url(s):
     global automate, noconfirm
 
     vprint(["Parsing songs list..."])
