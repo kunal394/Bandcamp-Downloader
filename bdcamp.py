@@ -61,21 +61,21 @@ def parse_url(url):
 
     if t == 'track':
         vprint(['in track'])
-        albumname = s.find("div", {"id" : "name-section"}).span.a.string.srtip().title()
+        albumname = s.find("div", {"id" : "name-section"}).span.a.string.srtip().title().replace('/', '-')
         dpath.append(albumname)
         handle_track_album(s, dpath, {})
     elif t == 'album' or t == '' or t == "releases":
         vprint(['in album'])
         bandname = s.find("div", {"id" : "name-section"}).span.a.string.strip().title()
         dpath.append(bandname)
-        albumname = s.find("div", {"id" : "name-section"}).h2.string.strip().title()
+        albumname = s.find("div", {"id" : "name-section"}).h2.string.strip().title().replace('/', '-')
         dpath.append(albumname)
         handle_track_album(s, dpath, {})
     elif t == 'music':
         vprint(['in music'])
         bandname = s.find("span", {"class" : "title"}).string.title()
         dpath.append(bandname)
-        albumlist = { i.string.strip() : i.parent.attrs['href'] for i in s.find_all("p", {"class" : "title"}) if i.string is not None }
+        albumlist = { i.string.strip().replace('/', '-') : i.parent.attrs['href'] for i in s.find_all("p", {"class" : "title"}) if i.string is not None }
         handle_artist(albumlist, url, dpath)
 
 def handle_artist(albumlist, url, dpath):
@@ -121,7 +121,7 @@ def handle_track_album(s, dpath, dl_dict):
         print "Creating the directory structure... "
         dirpath = "."
         for i in dpath:
-            dirpath = dirpath + '/' + str(i)
+            dirpath = dirpath + '/' + i
 
         if not os.path.exists(dirpath):
             os.makedirs(dirpath)
