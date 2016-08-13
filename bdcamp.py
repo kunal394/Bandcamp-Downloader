@@ -137,8 +137,12 @@ def fetch_download_url(s):
     songs_dict = {}
     #dictionary of songs with the api links
     for i, j in zip(range(1, len(fetch_list) + 1), fetch_list):
-        title = j.split(':')[1].split(',')[0].split('"')[1]
-        furl = "https:" + j.split(':')[3].split('}')[0].split('"')[1]
+        title_pattern = re.compile(ur'\"title\":\"[^,]*')
+        title_list = title_pattern.findall(unicode(j))
+        title = title_list[0].partition(':')[2][1:][:-1]
+        furl_pattern = re.compile(ur'\"file\":[^}]*')
+        furl_list = furl_pattern.findall(j)
+        furl = "https:" + furl_list[0].split('{')[1].split(':')[1][1:][:-1]
         songs_dict.update({i : [title, furl]})
 
     vprint(["Songs dictionary created", "Get the list of songs to download from user..."])
