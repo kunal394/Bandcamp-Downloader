@@ -5,7 +5,7 @@
 
     which is obtained from a url of type:
     https://popplers5.bandcamp.com/download/track?enc=mp3-128&fsig=66bf9341f2d63db3a4e203935b5a025c&id=2174833463&stream=1&ts=1465344506.0
-     """
+    """
 
 from main import *
 
@@ -13,12 +13,14 @@ verbose = False
 automate = False
 noconfirm = False
 
+#verbose print
 def vprint(arg):
     global verbose
     if verbose:
         for i in arg:
             print i
 
+#parse url to determine the type of download
 def parse_url(url):
 
     print """\n\nWarning!!! Either input a list of comma separated song nos

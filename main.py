@@ -78,8 +78,19 @@ def open_file(song_file):
             return f
 
 def download_song(song_file, url):
-
-    f = open_file(song_file)
+    
+    #check if file exists
+    if os.path.exists(song_file):
+        down = check_info(song_file, url)
+        if down is 0:
+            print 'File already exists!!!'
+            return 0
+        else:
+            #print 'Needs to be downloaded'
+            #return 0
+            f = open_file(song_file)
+    else:
+        f = open_file(song_file)
 
     print "Downloading " + song_file + "..."
     try:
@@ -95,3 +106,11 @@ def download_song(song_file, url):
         os.unlink(f.name)
         print "Download Error: ", str(e[0]), str(e[1])
     #return data        
+
+def check_info(song_file, url):
+        data = requests.get(url, headers={'Range' : 'bytes=0-0'})
+        if int(data.headers['Content-Range'].split('/')[1]) == os.path.getsize(song_file) :
+            return 0
+        else:
+            return 1
+
