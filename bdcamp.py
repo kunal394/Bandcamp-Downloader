@@ -142,6 +142,7 @@ def fetch_download_url(s):
         title_pattern = re.compile(ur'\"title\":\"[^,]*')
         title_list = title_pattern.findall(unicode(j))
         title = title_list[0].partition(':')[2][1:][:-1]
+        title = title.replace('/', '-')
         furl_pattern = re.compile(ur'\"file\":[^}]*')
         furl_list = furl_pattern.findall(j)
         furl = "https:" + furl_list[0].split('{')[1].split(':')[1][1:][:-1]
