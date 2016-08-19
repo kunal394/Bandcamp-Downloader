@@ -46,7 +46,7 @@ def parse_url(url):
 
     if t == 'track':
         vprint(['in track'])
-        albumname = s.find("div", {"id" : "name-section"}).span.a.string.srtip().title().replace('/', '-')
+        albumname = s.find("div", {"id" : "name-section"}).span.a.string.strip().title().replace('/', '-')
         dpath.append(albumname)
         handle_track_album(s, dpath, {})
     elif t == 'album' or t == '' or t == "releases":
