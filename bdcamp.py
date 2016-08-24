@@ -40,7 +40,15 @@ def parse_url(url):
     vprint(["Parsing directory paths..."])
 
     dpath = []
-    t = url.split('/')[3]
+    try:
+        t = url.split('/')[3]
+    except:
+        #url is of the artist but does not ends with music
+        t = ''
+        if url.endswith('/'):
+            url += 'music'
+        else:
+            url += '/music'
     
     vprint(["type: " + t])
 
@@ -49,14 +57,14 @@ def parse_url(url):
         albumname = s.find("div", {"id" : "name-section"}).span.a.string.strip().title().replace('/', '-')
         dpath.append(albumname)
         handle_track_album(s, dpath, {})
-    elif t == 'album' or t == '' or t == "releases":
+    elif t == 'album' or t == "releases":
         vprint(['in album'])
         bandname = s.find("div", {"id" : "name-section"}).span.a.string.strip().title()
         dpath.append(bandname)
         albumname = s.find("div", {"id" : "name-section"}).h2.string.strip().title().replace('/', '-')
         dpath.append(albumname)
         handle_track_album(s, dpath, {})
-    elif t == 'music':
+    elif t == 'music' or t == '':
         vprint(['in music'])
         bandname = s.find("span", {"class" : "title"}).string.title()
         dpath.append(bandname)
