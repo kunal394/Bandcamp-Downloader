@@ -88,6 +88,16 @@ def handle_artist(albumlist, url, dpath):
         if len(dl_dict) is not 0:
             album_dict.update({i : dl_dict})
 
+        display_artist(album_dict)
+
+        for i in album_dict:
+            dpath.append(i)
+            print "\nDownloading songs selected in the album: " + i
+            handle_track_album(s.clear(), dpath, album_dict[i])
+            print "Album " + i + " downloaded"
+            dpath.remove(i)
+
+def display_artist(album_dict):
     if len(album_dict) == 0:
         print "No songs selected"
     else:
@@ -96,13 +106,6 @@ def handle_artist(albumlist, url, dpath):
             print "\n\tAlbum Name: " + i
             for j in album_dict[i]:
                 print "\t\tSong Name: " + album_dict[i][j][0]
-
-        for i in album_dict:
-            dpath.append(i)
-            print "\nDownloading songs selected in the album: " + i
-            handle_track_album(s.clear(), dpath, album_dict[i])
-            print "Album " + i + " downloaded"
-            dpath.remove(i)
 
 def handle_track_album(s, dpath, dl_dict):
     if len(dl_dict) == 0:
