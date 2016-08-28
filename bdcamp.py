@@ -68,7 +68,7 @@ def parse_url(url):
         vprint(['in music'])
         bandname = s.find("span", {"class" : "title"}).string.title()
         dpath.append(bandname)
-        albumlist = { i.string.strip().replace('/', '-') : i.parent.attrs['href'] for i in s.find_all("p", {"class" : "title"}) if i.string is not None }
+        albumlist = { i.string.strip().replace('/', '-').title() : i.parent.attrs['href'] for i in s.find_all("p", {"class" : "title"}) if i.string is not None }
         handle_artist(albumlist, url, dpath)
 
 def handle_artist(albumlist, url, dpath):
@@ -88,14 +88,14 @@ def handle_artist(albumlist, url, dpath):
         if len(dl_dict) is not 0:
             album_dict.update({i : dl_dict})
 
-        display_artist(album_dict)
+    display_artist(album_dict)
 
-        for i in album_dict:
-            dpath.append(i)
-            print "\nDownloading songs selected in the album: " + i
-            handle_track_album(s.clear(), dpath, album_dict[i])
-            print "Album " + i + " downloaded"
-            dpath.remove(i)
+    for i in album_dict:
+        dpath.append(i)
+        print "\nDownloading songs selected in the album: " + i
+        handle_track_album(s.clear(), dpath, album_dict[i])
+        print "Album " + i + " downloaded"
+        dpath.remove(i)
 
 def display_artist(album_dict):
     if len(album_dict) == 0:

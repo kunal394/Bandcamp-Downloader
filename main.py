@@ -44,7 +44,7 @@ def display_songs(songs_dict):
     print ""    
     
     user_input = raw_input()
-    if user_input.strip() == 'all':
+    if user_input.strip().startswith('a'):
         dl_list = [s for s in songs_dict]
     else:
         dl_list = [int(s) for s in user_input.split(',') if s.strip().isdigit()]
