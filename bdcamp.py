@@ -157,7 +157,7 @@ def fetch_download_url(s):
         furl_pattern = re.compile(ur'\"file\":[^}]*')
         furl_list = furl_pattern.findall(j)
         furl = "https:" + furl_list[0].split('{')[1].split(':')[1][1:][:-1]
-        songs_dict.update({i : [title, furl]})
+        songs_dict.update({i : [title.title(), furl]})
 
     vprint(["Songs dictionary created", "Get the list of songs to download from user..."])
 
