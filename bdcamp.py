@@ -39,7 +39,6 @@ def parse_url(url):
 
     vprint(["Parsing directory paths..."])
 
-    dpath = []
     try:
         t = url.split('/')[3]
     except:
@@ -53,23 +52,41 @@ def parse_url(url):
     vprint(["type: " + t])
 
     if t == 'track':
-        vprint(['in track'])
-        albumname = s.find("div", {"id" : "name-section"}).span.a.string.strip().title().replace('/', '-')
-        dpath.append(albumname)
-        handle_track_album(s, dpath, {})
+        parse_track(s)
+
     elif t == 'album' or t == "releases":
-        vprint(['in album'])
-        bandname = s.find("div", {"id" : "name-section"}).span.a.string.strip().title()
-        dpath.append(bandname)
-        albumname = s.find("div", {"id" : "name-section"}).h2.string.strip().title().replace('/', '-')
-        dpath.append(albumname)
-        handle_track_album(s, dpath, {})
+        parse_album(s)
+
     elif t == 'music' or t == '':
-        vprint(['in music'])
+        parse_artist(s)
+
+def parse_track(s):
+    vprint(['in track'])
+    albumname = s.find("div", {"id" : "name-section"}).span.a.string.strip().title().replace('/', '-')
+    dpath = [albumname]
+    handle_track_album(s, dpath, {})
+
+def parse_album(s):
+    vprint(['in album'])
+    try:
+        bandname = s.find("div", {"id" : "name-section"}).span.a.string.strip().title()
+    except:
+        vprint(['Parsing as album failed!'])
+    dpath = [bandname]
+    albumname = s.find("div", {"id" : "name-section"}).h2.string.strip().title().replace('/', '-')
+    dpath.append(albumname)
+    handle_track_album(s, dpath, {})
+
+def parse_artist(s):
+    vprint(['in music'])
+    try:
         bandname = s.find("span", {"class" : "title"}).string.title()
-        dpath.append(bandname)
+        dpath = [bandname]
         albumlist = { i.string.strip().replace('/', '-').title() : i.parent.attrs['href'] for i in s.find_all("p", {"class" : "title"}) if i.string is not None }
         handle_artist(albumlist, url, dpath)
+    except:
+        vprint(['Parsing as artist failed! Trying as album...'])
+        parse_album(s)
 
 def handle_artist(albumlist, url, dpath):
     album_dict = {}
