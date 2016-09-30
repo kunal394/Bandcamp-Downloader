@@ -58,7 +58,7 @@ def parse_url(url):
         parse_album(s)
 
     elif t == 'music' or t == '':
-        parse_artist(s)
+        parse_artist(s, url)
 
 def parse_track(s):
     vprint(['in track'])
@@ -70,14 +70,15 @@ def parse_album(s):
     vprint(['in album'])
     try:
         bandname = s.find("div", {"id" : "name-section"}).span.a.string.strip().title()
+        dpath = [bandname]
+        albumname = s.find("div", {"id" : "name-section"}).h2.string.strip().title().replace('/', '-')
+        dpath.append(albumname)
+        handle_track_album(s, dpath, {})
     except:
-        vprint(['Parsing as album failed!'])
-    dpath = [bandname]
-    albumname = s.find("div", {"id" : "name-section"}).h2.string.strip().title().replace('/', '-')
-    dpath.append(albumname)
-    handle_track_album(s, dpath, {})
+        e = sys.exc_info()
+        vprint(['Parsing as album failed!', str(e[0]) + ' ' + str(e[1])])
 
-def parse_artist(s):
+def parse_artist(s, url):
     vprint(['in music'])
     try:
         bandname = s.find("span", {"class" : "title"}).string.title()
@@ -85,7 +86,8 @@ def parse_artist(s):
         albumlist = { i.string.strip().replace('/', '-').title() : i.parent.attrs['href'] for i in s.find_all("p", {"class" : "title"}) if i.string is not None }
         handle_artist(albumlist, url, dpath)
     except:
-        vprint(['Parsing as artist failed! Trying as album...'])
+        e = sys.exc_info()
+        vprint(['Parsing as artist failed!', str(e[0]) + ' ' + str(e[1]), 'Trying as album...'])
         parse_album(s)
 
 def handle_artist(albumlist, url, dpath):
