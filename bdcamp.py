@@ -50,11 +50,9 @@ def parse_url(url):
         t = url.split('/')[3]
     except:
         #url is of the artist but does not ends with music
-        t = ''
-        if url.endswith('/'):
-            url += 'music'
-        else:
-            url += '/music'
+        t = 'music'
+        url.strip('/')
+        url += '/music'
     
     vprint(["type: " + t])
 
@@ -76,10 +74,11 @@ def parse_track(s):
 def parse_album(s):
     vprint(['in album'])
     try:
-        bandname = s.find("div", {"id" : "name-section"}).span.a.string.strip().title()
+        bandname = s.find("div", {"id" : "name-section"}).span.a.string.strip().title().title().replace('/', '-')
         dpath = [bandname]
         albumname = s.find("div", {"id" : "name-section"}).h2.string.strip().title().replace('/', '-')
         dpath.append(albumname)
+        vvprint(['Band-name: ' + bandname, 'Album-name: ' + albumname])
         handle_track_album(s, dpath, {})
     except:
         e = sys.exc_info()
@@ -159,33 +158,38 @@ def fetch_download_url(s):
 
     #fetch all script tags inside body
     js = s.body.find_all("script")
+    title_list = s.body.find_all('span', {'itemprop': 'name'})
+    title_list = [i.text.replace('/', '-').title() for i in title_list]
 
-    fetch_list = []
-    #pattern to search for the urls along with title
+    furl_list = []
+    #pattern to search for the fetch urls
     #[^\"] means anything other than "
-    pattern=re.compile(ur'\"title\":\"[^\"]*\",\"file\":\{[^\}]*\}')
+    furl_pattern=re.compile(ur'\/\/popplers[^\}]*\}')
 
     #create list of the api calls needed to download songs
     for j in js:
-        temp = pattern.findall(unicode(j))
+        temp = furl_pattern.findall(unicode(j))
         if len(temp) is not 0:
-            fetch_list.extend(temp)
-
+            furl_list.extend(temp)
+    #remove the "} from the end of every furl
+    furl_list = [i[:-2] for i in furl_list]
     vprint(["Songs list created", "Creating songs dictionary..."])
+    vvprint(["Fetch list:", furl_list, "Title list:", title_list])
+    if(len(furl_list) != len(title_list)):
+        print("Error: title list and fetch list have different lengths")
+        print("Title list:")
+        print(title_list)
+        print("Fetch list:")
+        print(furl_list)
+        sys.exit(1)
 
     songs_dict = {}
     #dictionary of songs with the api links
-    for i, j in zip(range(1, len(fetch_list) + 1), fetch_list):
-        title_pattern = re.compile(ur'\"title\":\"[^,]*')
-        title_list = title_pattern.findall(unicode(j))
-        title = title_list[0].partition(':')[2][1:][:-1]
-        title = title.replace('/', '-')
-        furl_pattern = re.compile(ur'\"file\":[^}]*')
-        furl_list = furl_pattern.findall(j)
-        furl = "https:" + furl_list[0].split('{')[1].split(':')[1][1:][:-1]
-        songs_dict.update({i : [title.title(), furl]})
+    for i in range(1, len(furl_list) + 1):
+        songs_dict.update({i : [title_list[i - 1], 'https:' + furl_list[i - 1]]})
 
     vprint(["Songs dictionary created", "Get the list of songs to download from user..."])
+    vvprint(["Songs dictionary:", songs_dict])
 
     if automate:
         dl_list = [s for s in songs_dict]
